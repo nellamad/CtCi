@@ -572,6 +572,7 @@ class Test(unittest.TestCase):
     def test_count_eval(self):
         #self.assertEqual(count_eval('1^0|0|1', False), 2)
         #self.assertEqual(count_eval('0&0&0&1^1|0', True), 10)
+        return
 
 
 if __name__ == '__main__':

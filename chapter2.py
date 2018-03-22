@@ -147,18 +147,16 @@ def get_loop(head):
 # Utility functions
 
 
-def is_equivalent(head1, head2):
-    return (head1 is None and head2 is None) or (head1 is not None and head2 is not None and head1.data == head2.data and is_equivalent(head1.next, head2.next))
-
-def print_list(head):
-    if head is None:
-        print(None)
-    else:
-        print(head.data, end=' ')
-        print_list(head.next)
 
 
 class Test(unittest.TestCase):
+    def is_equivalent(self, head1, head2):
+        return (head1 is None and head2 is None)\
+               or (head1 is not None
+                   and head2 is not None
+                   and head1.data == head2.data
+                   and self.is_equivalent(head1.next,head2.next))
+
     def setUp(self):
         self.empty = None
         self.single = Node(1, None)
@@ -173,7 +171,7 @@ class Test(unittest.TestCase):
 
     def test_deleteNode(self):
         delete_node(self.canonical.next)
-        self.assertTrue(is_equivalent(
+        self.assertTrue(self.is_equivalent(
                             self.canonical, 
                             Node(1, Node(3, Node(4, Node(5, Node(6, Node(7, Node(8, Node(9, Node(10)))))))))))
 
@@ -192,7 +190,7 @@ class Test(unittest.TestCase):
             current = current.next
 
     def test_sumLists(self):
-        self.assertTrue(is_equivalent(
+        self.assertTrue(self.is_equivalent(
                             sum_lists(self.canonical2, self.canonical3),
                             Node(8, Node(0, Node(3, Node(5, Node(5, Node (6, Node(7, Node(8, Node(9)))))))))))
 

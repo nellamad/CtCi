@@ -80,51 +80,49 @@ class Queue:
 
 # 4.1 Route Between Nodes: Given a directed graph, design an algorithm
 # to find out whether there is a route between two nodes
-def breadth_first_search(a, b):
-    if a is None or b is None:
-        return None
-    to_visit = Queue()
-    visited = set()
-    to_visit.enqueue(a)
-    while len(to_visit) > 0:
-        visiting = to_visit.dequeue()
-        if visiting == b:
-            return True
-        if visiting not in visited:
-            for child in visiting.children:
-                to_visit.enqueue(child)
-        visited.add(visiting)
-    return False
-
-
 def path_exists(a, b):
+    def breadth_first_search(a, b):
+        if a is None or b is None:
+            return None
+        to_visit = Queue()
+        visited = set()
+        to_visit.enqueue(a)
+        while len(to_visit) > 0:
+            visiting = to_visit.dequeue()
+            if visiting == b:
+                return True
+            if visiting not in visited:
+                for child in visiting.children:
+                    to_visit.enqueue(child)
+            visited.add(visiting)
+        return False
+
     return breadth_first_search(a, b) or breadth_first_search(b, a)
 
 
 # 4.2 BST from array: Given a sorted-increasing array with unique integers,
 # create a BST with minimal height
 def create_bst(arr):
+    def create_bst_rec(arr, start, end):
+        if len(arr) < 1 or start < 0 or end > len(arr) - 1:
+            print('Returning empty BST from arr {0} {1}-{2}'.format(arr, start, end))
+            return None
+        bst_length = end - start + 1
+        if start == end:
+            return BinaryNode(arr[start])
+        elif bst_length == 2:
+            return BinaryNode(
+                arr[start],
+                BinaryNode(arr[end]) if arr[end] <= arr[start] else None,
+                BinaryNode(arr[end]) if arr[end] > arr[start] else None)
+        else:
+            median = start + int(bst_length / 2)
+            return BinaryNode(
+                arr[median],
+                create_bst_rec(arr, start, median - 1),
+                create_bst_rec(arr, median + 1, end))
+
     return create_bst_rec(arr, 0, len(arr) - 1)
-
-
-def create_bst_rec(arr, start, end):
-    if len(arr) < 1 or start < 0 or end > len(arr) - 1:
-        print('Returning empty BST from arr {0} {1}-{2}'.format(arr, start, end))
-        return None
-    bst_length = end - start + 1
-    if start == end:
-        return BinaryNode(arr[start])
-    elif bst_length == 2:
-        return BinaryNode(
-            arr[start],
-            BinaryNode(arr[end]) if arr[end] <= arr[start] else None,
-            BinaryNode(arr[end]) if arr[end] > arr[start] else None)
-    else:
-        median = start + int(bst_length / 2)
-        return BinaryNode(
-            arr[median],
-            create_bst_rec(arr, start, median - 1),
-            create_bst_rec(arr, median + 1, end))
 
 
 # 4.3 List of Depths: Given a binary tree, create linked lists of nodes at each depth
@@ -174,14 +172,13 @@ def validate_bst(root):
 def validate_bst_rec(root, min, max):
     if root is None:
         return True
-    return (min < root.data and
-            root.data < max and
-            validate_bst_rec(root.left, min, root.data) and
-            validate_bst_rec(root.right, root.data, max))
+    return (min < root.data < max
+            and validate_bst_rec(root.left, min, root.data)
+            and validate_bst_rec(root.right, root.data, max))
 
 
-# 4.6 Sucessor: Find the inorder sucessor of a given node in a BST.  Nodes have a parent link
-def get_inorder_sucessor(root):
+# 4.6 Successor: Find the inorder successor of a given node in a BST.  Nodes have a parent link
+def get_inorder_successor(root):
     if root is None:
         return None
     if (root.right is None and
@@ -194,7 +191,7 @@ def get_inorder_sucessor(root):
     return current
 
 
-# 4.7 Build Order: Given a list of projects and a list of (dependecy, dependant), find a build
+# 4.7 Build Order: Given a list of projects and a list of (dependency, dependant), find a build
 # order that will allow the projects to be built.  Return an error if it is not possible.
 def get_build_order(projects, dependencies):
     if projects is None:
@@ -256,7 +253,7 @@ def first_common_ancestor(root, a, b):
 # 4.9 BST Sequences: A BST was created by inserting elements from an array (in order).  Given a BST
 # with distinct elements, print all possible arrays that could have led to this tree
 def bst_sequence_mix(leftSource, rightSources):
-    #print('left: {0}, rights: {1}'.format(leftSource, rightSources))
+    # print('left: {0}, rights: {1}'.format(leftSource, rightSources))
     if leftSource is None or len(leftSource) == 0:
         return rightSources
     sources = []
@@ -266,9 +263,9 @@ def bst_sequence_mix(leftSource, rightSources):
             continue
         for i in range(0, len(leftSource) + 1):
             prefix = leftSource[0:i] + [rightSource[0]]
-            #print('prefix: {0}'.format(prefix))
+            # print('prefix: {0}'.format(prefix))
             suffices = bst_sequence_mix(leftSource[i:], [rightSource[1:]])
-            #print('suffices: {0}'.format(suffices))
+            # print('suffices: {0}'.format(suffices))
 
             for suffix in suffices:
                 sources.append(prefix + suffix)
@@ -277,7 +274,7 @@ def bst_sequence_mix(leftSource, rightSources):
 
 
 def get_sequence_arrays(root):
-    if root == None:
+    if root is None:
         return [[]]
 
     left_sources = get_sequence_arrays(root.left)
@@ -294,15 +291,14 @@ def get_sequence_arrays(root):
 
 # 4.10 Check Subtree: Check if one binary tree is a subtree of another much larger binary tree
 def check_subtree(root1, root2):
+    def serialize_tree(root):
+        if root is None:
+            return 'X'
+        return '{0},{1},{2}'.format(root.data,
+                                    serialize_tree(root.left),
+                                    serialize_tree(root.right))
+
     return serialize_tree(root2) in serialize_tree(root1)
-
-
-def serialize_tree(root):
-    if root is None:
-        return 'X'
-    return '{0},{1},{2}'.format(root.data,
-                                serialize_tree(root.left),
-                                serialize_tree(root.right))
 
 
 # 4.11 Random Node: Implement an algorithm to retrieve a random node from a binary tree.  All nodes
@@ -337,28 +333,27 @@ def count_paths_sum_brute(root, sum):
 
 # solution from CtCi
 def count_paths_sum(root, sum):
+    def count_paths_sum_rec(root, target_sum, running_sum, path_counts):
+        if root is None:
+            return 0
+
+        running_sum += root.data
+        total_paths = path_counts[running_sum - target_sum] if (running_sum - target_sum) in path_counts else 0
+
+        if running_sum == target_sum:
+            total_paths += 1
+
+        if running_sum not in path_counts:
+            path_counts[running_sum] = 1
+        else:
+            path_counts[running_sum] += 1
+        total_paths += count_paths_sum_rec(root.left, target_sum, running_sum, path_counts)
+        total_paths += count_paths_sum_rec(root.right, target_sum, running_sum, path_counts)
+        path_counts[running_sum] -= 1
+
+        return total_paths
+
     return count_paths_sum_rec(root, sum, 0, {})
-
-
-def count_paths_sum_rec(root, target_sum, running_sum, path_counts):
-    if root is None:
-        return 0
-
-    running_sum += root.data
-    total_paths = path_counts[running_sum - target_sum] if (running_sum - target_sum) in path_counts else 0
-
-    if running_sum == target_sum:
-        total_paths += 1
-
-    if running_sum not in path_counts:
-        path_counts[running_sum] = 1
-    else:
-        path_counts[running_sum] += 1
-    total_paths += count_paths_sum_rec(root.left, target_sum, running_sum, path_counts)
-    total_paths += count_paths_sum_rec(root.right, target_sum, running_sum, path_counts)
-    path_counts[running_sum] -= 1
-
-    return total_paths
 
 
 class Test(unittest.TestCase):
@@ -381,14 +376,14 @@ class Test(unittest.TestCase):
 
     def test_getDepths(self):
         binary_tree = BinaryNode(1,
-                    BinaryNode(2,
-                        BinaryNode(4)),
-                    BinaryNode(3,
-                        BinaryNode(5,
-                            BinaryNode(6),
-                            BinaryNode(7,
-                                None,
-                                BinaryNode(8)))))
+                        BinaryNode(2,
+                            BinaryNode(4)),
+                        BinaryNode(3,
+                            BinaryNode(5,
+                                BinaryNode(6),
+                                BinaryNode(7,
+                                    None,
+                                    BinaryNode(8)))))
         depths = get_depths(binary_tree)
         self.assertIsNotNone(depths)
         self.assertTrue(
@@ -479,13 +474,13 @@ class Test(unittest.TestCase):
                                             None,
                                             BinarySearchNode(14)))))
 
-        successor = get_inorder_sucessor(binarySearchTree)
+        successor = get_inorder_successor(binarySearchTree)
         self.assertTrue(successor is not None and successor.data == 11)
-        successor = get_inorder_sucessor(successor)
+        successor = get_inorder_successor(successor)
         self.assertTrue(successor is not None and successor.data == 12)
-        successor = get_inorder_sucessor(successor)
+        successor = get_inorder_successor(successor)
         self.assertTrue(successor is not None and successor.data == 13)
-        successor = get_inorder_sucessor(successor)
+        successor = get_inorder_successor(successor)
         self.assertTrue(successor is not None and successor.data == 14)
 
     def test_getBuildOrder(self):
@@ -534,7 +529,6 @@ class Test(unittest.TestCase):
         sequences = bst_sequence_mix([1], [[3]])
         self.assertEqual(len(sequences), 2)
         self.assertTrue([1, 3] in sequences and [3, 1] in sequences)
-        sequences = bst_sequence_mix([2, 1, 3], [[5, 7]])
         sequences = get_sequence_arrays(BinarySearchNode(2, BinarySearchNode(1), BinarySearchNode(3)))
         self.assertEqual(len(sequences), 2)
         self.assertTrue([2, 1, 3] in sequences and [2, 3, 1] in sequences)
